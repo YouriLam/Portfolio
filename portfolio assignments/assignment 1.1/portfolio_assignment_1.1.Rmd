@@ -8,13 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse) 
 library(readxl) 
-library(toolboxr)
 ```
 
 Assignment 1.1
 
 ``` {r opdracht1.1}
-dataset_Elegans <- read_excel("~/School/Jaar 4/Workflows/CE.LIQ.FLOW.062_Tidydata.xlsx")
+dataset_Elegans <- read_excel("~/School/Jaar 4/Workflows/Portfolio/portfolio assignments/assignment 1.1/CE.LIQ.FLOW.062_Tidydata.xlsx")
 typeof(dataset_Elegans$RawData)
 typeof(dataset_Elegans$compName)
 typeof(dataset_Elegans$compConcentration)
@@ -52,9 +51,11 @@ ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
 
 ```
 
-The positive control for this experiments is 2,6-diisopropylnaphthalene. The negative control for this experiment is Ethanol.
+The positive control for this experiments is 2,6-diisopropylnaphthalene. The negative control for this experiment is Ethanol. 
 
-To learn whether there is indeed an effect of different concentrations on offspring count 
+To learn whether there is indeed an effect of different concentrations on offspring count and whether the different compounds have a different curve (IC50). Write down you analysis as a step-wise plan.
+Normalize the data for the controlNegative in such a way that the mean value for controlNegative is exactly equal to 1 and that all other values are expressed as a fraction thereof. Rerun your graphs with the normalized data.
+Why would you want to take the step under J?
 
 Think about how you would analyze this experiment to learn whether there is indeed an effect of different concentrations on offspring count and whether the different compounds have a different curve (IC50). Write down you analysis as a step-wise plan.
 ```{r }
