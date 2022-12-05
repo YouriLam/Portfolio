@@ -9,9 +9,7 @@ Link to the article is provided: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC95
 
 This article doesn't score well on the criteria.The study purpose is obvious, it's to see if COS has effects on heart failure. In terms of every single data-related issue, the study doesn't score well. The data is unavailable to the reader unless they contact the owners of the data itself. Study review, author review and ethics statement were all included however. The code availability left much to be desired. 
 
-Score the artie on the basis of the above ‘Repita’ criteria
-Write an Rmarkdown report on your findings, including the table above and some information about the article such as general aim, short methods and results. If data is available, try including some
-Store the source Rmd and knitted HTML in a folder called ‘Rmd’ in your course RStudio project. You will need it again later in the course
+
 
 Link to the article for part 2 of this assignment: https://osf.io/wqc25/
 
