@@ -1,0 +1,19 @@
+---
+title: "Open Peer Review"
+author: "Youri Lam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse) 
+library(readxl) 
+```
+
+Link to the article is provided: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9556196/
+
+This article 
+
+Score the artie on the basis of the above ‘Repita’ criteria
+Write an Rmarkdown report on your findings, including the table above and some information about the article such as general aim, short methods and results. If data is available, try including some
+Store the source Rmd and knitted HTML in a folder called ‘Rmd’ in your course RStudio project. You will need it again later in the course
