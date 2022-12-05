@@ -5,15 +5,16 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-library(tidyverse) 
-library(readxl) 
-```
-
 Link to the article is provided: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9556196/
 
-This article 
+This article doesn't score well on the criteria.The study purpose is obvious, it's to see if COS has effects on heart failure. In terms of every single data-related issue, the study doesn't score well. The data is unavailable to the reader unless they contact the owners of the data itself. Study review, author review and ethics statement were all included however. The code availability left much to be desired. 
 
 Score the artie on the basis of the above ‘Repita’ criteria
 Write an Rmarkdown report on your findings, including the table above and some information about the article such as general aim, short methods and results. If data is available, try including some
 Store the source Rmd and knitted HTML in a folder called ‘Rmd’ in your course RStudio project. You will need it again later in the course
+
+Link to the article for part 2 of this assignment: https://osf.io/wqc25/
+
+The code this article provides seems to score people's daily loneliness during the COVID period. Then, the values get analysed on the test group their sex, age and weight, to see if that might show some kind of connection between the two. Overall, I would rate the data a 4/5, it;s very tidy and it's clear to see what the goal of the code is.
+To test wether or not the code is sustainable, i'm going to run it:
+
