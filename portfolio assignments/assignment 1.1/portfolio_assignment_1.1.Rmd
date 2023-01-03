@@ -9,6 +9,7 @@ output: html_document
 library(readxl)
 library(tidyverse)
 library(toolboxr)
+library(ggplot2)
 library(patchwork)
 library(cowplot)
 library(devtools)
@@ -39,29 +40,59 @@ plot_wrong <- ggplot(data = dataset_elegans, aes(x = compConcentration, y = RawD
        y = "Number of offspring",
        title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds, alphabetical",
        shape = "Type",
-       color = "Compound")
+       color = "Compound")+
+       theme(legend.key.size = unit(0.75,"line"),
+        legend.text = element_text(size = 8))
 plot_wrong
 ```
 
-As seen in the figure above, the x-axis labels are ordered alphabetically. This is because the data type of the compConcentration is character instead of double.By changing the date types to the correct ones and adding jitter, we can make the graph look like this:
+As seen in the figure above, the x-axis labels are ordered alphabetically. This is because the data type of the compConcentration is character instead of double. 
 
+Looking at the compUnit part of the data, I noticed that not all of the data shares the same compUnit. Some of them are compounds measured in nM and some compounds are measured in percentage. To show this, I made sure to divide the data into two graphs, one for each unit. By changing the date types to the correct ones (including the types talked about previously) and adding jitter, we can make the graph look like this:
 
-Because of the concentration levels being so incredibly low, everything is super close together. 
+```{r changing datatype}
+dataset_elegans$RawData <- as.integer(dataset_elegans$RawData)
+dataset_elegans$compName <- as.factor(dataset_elegans$compName)
+dataset_elegans$compConcentration <- as.double(dataset_elegans$compConcentration)
 
-```{r opdracht1 graph2}
-dataset_elegans$compConcentration <- jitter(dataset_elegans$compConcentration, 2)
-ggplot(data = dataset_elegans, aes(x = compConcentration, y = RawData)) +
-  geom_point(aes(color = compName,
-                 shape = expType),
-             size = 3,alpha = 0.8) +
-  scale_x_continuous(trans='log10') +
-  labs(title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds",
-       x = "Concentration of the compound",
-       y = "Number of offsprings counted")
+class(dataset_elegans$RawData)
+class(dataset_elegans$compName)
+class(dataset_elegans$compConcentration)
 ```
 
-The positive control for this experiments is 2,6-diisopropylnaphthalene. The negative control for this experiment is Ethanol. 
+```{r scatterplotelegans,warning=FALSE, fig.cap="Number of C. elegans offspring under a number of circumstances"}
+#Scatter plot filtered on nM as unit
+elegans_nM <- dataset_elegans %>% filter(compUnit == "nM")
+scatter_nM <- ggplot(data = elegans_nM, aes(x = log10(compConcentration), y = RawData))+
+  geom_jitter(aes(color = compName, 
+                  shape = expType),
+              width = 0.5, height = 0.2)+
+  labs(x = "log10 concentration of compounds (nM)",
+       y = "Number of offspring")+
+  theme(legend.position = "none")
 
-To learn whether there is indeed an effect of different concentrations on offspring count I would apply a t-test for each concentration to see wether there is a significant statistically difference.
 
-The result has to be normalised in order to filter the natural expression. S-medium is the negative control, so this will be used as a blanc.
+#Scatter plot filtered on pct as unit
+elegans_pct <- dataset_elegans %>% filter(compUnit == "pct")
+scatter_pct <- ggplot(data = elegans_pct, aes(x = expType, y = RawData))+
+  geom_jitter(aes(color = compName, 
+                  shape = expType),
+              width = 0.1, height = 0.2)+
+  labs(x = "log10 concentration of compounds (nM)",
+       y = "Number of offspring")+
+  theme(legend.position = "none",
+    axis.text.x=element_text(vjust=0.5, hjust=0.5, size = 8.75),
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(), 
+        axis.title.y = element_blank())+
+  rotate_axis_labels("x", 90)
+
+legend <- get_legend(plot_wrong)
+
+plot_grid(plot_grid(scatter_nM, scatter_pct),
+                 plot_grid(NULL, legend, ncol = 3),
+                 rel_widths = c(1, 0.35))+
+  plot_annotation("Number of C. elegans offspring under\na number of circumstances")
+```
+
+The positive control for this experiment is ethanol. The negative control for this experiment is S-medium.
