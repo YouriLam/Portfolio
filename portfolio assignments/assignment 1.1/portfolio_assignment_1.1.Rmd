@@ -96,3 +96,28 @@ plot_grid(plot_grid(scatter_nM, scatter_pct),
 ```
 
 The positive control for this experiment is ethanol. The negative control for this experiment is S-medium.
+
+To make it easier to read the grap, the data needs to be normalized. To do this we adjust the negative control to a value of 1 and adjust the other values in the same way:
+
+```{r normalization}
+#Obtain the mean of the RawData (negativeControl)
+neg_control <- dataset_elegans %>% filter(compName == "S-medium") %>% summarize(mean = mean(RawData, na.rm = TRUE))
+#Use the mean to calculate fractions
+mutated <- dataset_elegans %>% filter(RawData > 0) %>% 
+  select(RawData, compName, compConcentration, expType) %>% na.omit() %>% 
+  mutate(normalized = RawData/neg_control$mean)
+```
+
+```{r normalizedplot, fig.cap="Number of C. elegans offspring as a fraction of the negative control group."}
+#create normalized plot
+normalized_plot <- mutated %>% filter(compName == "2,6-diisopropylnaphthalene" | compName == "decane" | compName == "naphthalene") %>% ggplot(aes(x = log10(compConcentration), y = normalized))+
+  geom_jitter(aes(color = compName), width = 0.5, height = 0.1)+
+  labs(x = "log10 concentration (nM)",
+       y = "Normalized number of offspring",
+       title = "Number of C. elegans offspring as a fraction\nof the negative control group",
+       color = "Compound")+
+  geom_hline(yintercept = 1, color = "red")
+
+normalized_plot
+```
+Everything below the red line means less offspring than control C. elegans and everything above it has more offspring. For further analysation of the effect i would start by testing normality by performing a Shapiro-Wilk test. If unusual, i would normalize the data like done above. If normal, i would start an ANOVA between de different conditions. I would end with the post-hoc tests, to check in what combination of groups the difference is.
