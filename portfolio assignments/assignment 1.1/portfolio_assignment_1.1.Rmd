@@ -6,41 +6,51 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse) 
-library(readxl) 
+library(readxl)
+library(tidyverse)
+library(toolboxr)
+library(patchwork)
+library(cowplot)
+library(devtools)
+library(here)
+devtools::install_github("uashogeschoolutrecht/toolboxr")
+```
 ```
 
 Assignment 1.1
 
-``` {r opdracht1.1}
-dataset_Elegans <- read_excel("~/School/Jaar 4/Workflows/Portfolio/portfolio assignments/assignment 1.1/CE.LIQ.FLOW.062_Tidydata.xlsx")
-typeof(dataset_Elegans$RawData)
-typeof(dataset_Elegans$compName)
-typeof(dataset_Elegans$compConcentration)
+``` {r importing and checking data types}
+dataset_elegans <- read_excel(here("raw_data/CE.LIQ.FLOW.062_Tidydata.xlsx"))
+typeof(dataset_elegans$RawData)
+typeof(dataset_elegans$compName)
+typeof(dataset_elegans$compConcentration)
 ```
 
-The variables RawData (the outcome - number of offspring counted as an integer value, after incubation time), compName (the generic name of the compound/chemical) and the compConcentration (the concentration of the compound) are all very important in this research.Judging from the experimental description above, I would expect the datatype of the RawData to be integer,compConcentration should be double and the datatype of compName should be character.Judging by the fact that none of these have the correct datatype except compName, I can safely assume the data has not been correctly imported into R.
+Before the data can be visualized, it has to be cleaned up. The dataframe is already in tidy format, but the data types of the columns need to be changed. The variables RawData (the outcome - number of offspring counted as an integer value, after incubation time), compName (the generic name of the compound/chemical) and the compConcentration (the concentration of the compound) are all very important in this research. Expected data types would be double/integer for RawData, character for compName and double for compConcentration. The actual data types of the columns are double for RawData, character for compName and character for compConcentration, as seen above. When plotted, this will result in the following issue: 
 
-```{r opdracht1 graph}
-class(dataset_Elegans$RawData) = "integer"
-class(dataset_Elegans$compConcentration) = "double"
-class(dataset_Elegans$compName) = "character"
+```{r errorplot, warning=FALSE, fig.cap="Number of C. elegans offspring under a number of circumstances where the x-axis is ordered alphabetically"}
 
-ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
+plot_wrong <- ggplot(data = dataset_elegans, aes(x = compConcentration, y = RawData))+
   geom_point(aes(color = compName,
                  shape = expType),
-             size = 3,alpha = 0.8) +
-  labs(title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds",
-       x = "Concentration of the compound",
-       y = "Number of offsprings counted")
+             size = 1)+
+  rotate_axis_labels("x", 90)+
+  labs(x = "Concentration",
+       y = "Number of offspring",
+       title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds, alphabetical",
+       shape = "Type",
+       color = "Compound")
+plot_wrong
 ```
+
+As seen in the figure above, the x-axis labels are ordered alphabetically. This is because the data type of the compConcentration is character instead of double.By changing the date types to the correct ones and adding jitter, we can make the graph look like this:
+
 
 Because of the concentration levels being so incredibly low, everything is super close together. 
 
 ```{r opdracht1 graph2}
-dataset_Elegans$compConcentration <- jitter(dataset_Elegans$compConcentration, 2)
-
-ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
+dataset_elegans$compConcentration <- jitter(dataset_elegans$compConcentration, 2)
+ggplot(data = dataset_elegans, aes(x = compConcentration, y = RawData)) +
   geom_point(aes(color = compName,
                  shape = expType),
              size = 3,alpha = 0.8) +
@@ -48,7 +58,6 @@ ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
   labs(title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds",
        x = "Concentration of the compound",
        y = "Number of offsprings counted")
-
 ```
 
 The positive control for this experiments is 2,6-diisopropylnaphthalene. The negative control for this experiment is Ethanol. 
