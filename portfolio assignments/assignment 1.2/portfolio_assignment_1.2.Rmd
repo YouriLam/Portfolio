@@ -8,6 +8,11 @@ output: html_document
 ```{r reproducibleresearchlibraries, include=FALSE}
 library(tidyverse)
 library(knitr)
+library(here)
+library(dplyr)
+library(reshape2)
+library(lme4)
+library(broom.mixed)
 ```
 
 For the first part of the assignment I will have to check the reproduction of an article, based on the 'Repita' criteria. This criteria are used to check for the reproducibility of scientific research articles. In the table below the different criteria are shown with a definition and the type of response it calls for.
@@ -34,32 +39,129 @@ knitr::kable(criteria_adhd, caption = "Table showing how the article scored on r
 
 Overall, I give this article a 8.5/10 on reproducibility. It's clear what the writers of this article want to put forward, even if no code is provided. 
 
+##############################################################################
+
+For the second part of the assignment I will have to use the code provided with an article. I will have to try and understand the code, explain what it does and even try to make at least one figure.
+
+Link to the article: https://osf.io/wqc25/
+The code is easily available and very easily readable. There are a lot of codes included. Using the processed data, it is very easy to recreate on of the figures from this study. I would rate the readabilty of this code a 5/5. 
+
+```{r trying the code}
+# gg_color_hue ------------------------------------------------------------
+
+## function for colors
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+# get_max_daily -----------------------------------------------------------
+
+# x <- ymd("2020-03-23 UTC")
+get_max_daily <- function(x){
+  x <- x + c(1:4, 9:12, 17:20, 25:27)
+  x <- x[x < ymd("2020-04-13 UTC")]
+  return(x)
+}
+
+# read data ---------------------------------------------------------------
+
+# sample 1
+sample1 <- read.csv(here("raw_data/sample1_use for revision 1.csv"))
+sample1 <- sample1[sample1$include_1,]
+
+# sample 2
+sample2 <- read.csv(here("raw_data/sample2_use for revision 1.csv"))
+sample2 <- sample2[sample2$include_1,]
+
+# combine samples for the additional analyses
+data <- rbind(sample1, sample2)
+
+# packages ----------------------------------------------------------------
+
+# install.packages("lubridate")
+library(lubridate)
+
+# -------------------------------------------------------------------------
+
+## define colors
+c <- gg_color_hue(2)
+col.s1 <- c[1]
+col.s2 <- c[2]
+
+# completed baseline surveys per day that are included in the study
+data_l2_s1 <- unique(sample1[c("ID", "b_baseline_ended")])
+data_l2_s2 <- unique(sample2[c("ID", "b_baseline_ended")])
+
+# no missings on this variable
+any(is.na(data_l2_s1[2]))
+any(is.na(data_l2_s2[2]))
+
+date_s1 <- ymd_hms(data_l2_s1$b_baseline_ended)
+hour(date_s1) <- 0
+minute(date_s1) <- 0
+second(date_s1) <- 0
+
+date_s2 <- ymd_hms(data_l2_s2$b_baseline_ended)
+hour(date_s2) <- 0
+minute(date_s2) <- 0
+second(date_s2) <- 0
+
+
+# number of baseline surveys completed
+t_date_baseline_1 <- table(ymd(date_s1))
+t_date_baseline_2 <- table(ymd(date_s2))
+t_date_baseline_1 <- c(t_date_baseline_1, "2020-04-12" = 0)
+t_date_baseline_12 <- rbind(t_date_baseline_1, t_date_baseline_2)
+
+# barplot sample 1 and 2 baseline participation ---------------------------
+
+layout(matrix(1:2, 1, 2, byrow = TRUE))
+
+b <- barplot(t_date_baseline_12, beside = TRUE, ylim = c(0, 800), names.arg = rep("", length(t_date_baseline_12)),
+             col = c(col.s1, col.s2), axes = FALSE)
+box()
+axis(2, las = 2, cex.axis = 0.8)
+s <- seq(1, 28, 7)
+labels <- colnames(t_date_baseline_12)[s]
+axis(1, at = ((b[1,] + b[2,])/2)[s], labels = labels, cex.axis = 0.8)
+text("A", x = ((b[1,] + b[2,])/2)[2], y = 800*.9, cex = 4, col = "grey")
+legend(x = ((b[1,] + b[2,])/2)[15], y = 800, legend = c("Sample 1", "Sample 2"), fill = c(col.s1, col.s2), bty = "n")
+
+
+# dates at which a daily survey could have been completed:
+max_daily_dates_s1 <- lapply(ymd(date_s1), get_max_daily)
+max_daily_dates_s2 <- lapply(ymd(date_s2), get_max_daily)
+
+max_dates_s1 <- do.call("c", max_daily_dates_s1)
+max_dates_s2 <- do.call("c", max_daily_dates_s2)
+obtained_dates_s1 <- sample1$daily_date
+obtained_dates_s2 <- sample2$daily_date
+
+t_max_dates_s1 <- table(max_dates_s1)
+t_max_dates_s2 <- table(max_dates_s2)
+
+t_obtained_dates_s1 <- table(obtained_dates_s1)
+t_obtained_dates_s2 <- table(obtained_dates_s2)
+
+t_obtained_dates_s12 <- rbind(t_obtained_dates_s1, t_obtained_dates_s2)
+
+b <- barplot(t_obtained_dates_s12, beside = TRUE, ylim = c(0, 2000),
+             names.arg = rep("", length(t_obtained_dates_s12)),
+             col = c(col.s1, col.s2), axes = FALSE)
+box()
+axis(2, las = 2, cex.axis = 0.8)
+labels <- colnames(t_obtained_dates_s12)[s]
+axis(1, at = ((b[1,] + b[2,])/2)[s], labels = labels, cex.axis = 0.8)
+
+lines(y = t_max_dates_s1, x = b[1,], type = "p", pch = "-", col = col.s1, cex = 1.5)
+lines(y = t_max_dates_s2, x = b[2,], type = "p", pch = "-", col = col.s2, cex = 1.5)
+text("B", x = ((b[1,] + b[2,])/2)[2], y = 2000*.9, cex = 4, col = "grey")
+legend(x = ((b[1,] + b[2,])/2)[15], y = 2000, legend = c("Sample 1", "Sample 2"), fill = c(col.s1, col.s2), bty = "n")
+```
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Link to the article for part 2 of this assignment: https://osf.io/wqc25/
-
-The code this article provides seems to score people's daily loneliness during the COVID period. Then, the values get analysed on the test group their sex, age and weight, to see if that might show some kind of connection between the two. Overall, I would rate the data a 4/5, it;s very tidy and it's clear to see what the goal of the code is.
-To test wether or not the code is sustainable, i'm going to run it:
-
+I didn't have any trouble reading the code, or understanding what needed to happen. The only error I got was in the read.csv function (lines 70 & 74). To fix this. I redirected the function with the 'here' command. That way, it was able to find the files in the raw_data folder.
