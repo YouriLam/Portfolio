@@ -1,58 +1,23 @@
 ---
-title: "portfolio_assignment_1.1"
+title: "portfolio_assignment_2"
 author: "Youri Lam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse) 
-library(readxl) 
+library(here) 
+library(fs) 
 ```
 
-Assignment 1.1
+----
 
-``` {r opdracht1.1}
-dataset_Elegans <- read_excel("~/School/Jaar 4/Workflows/Portfolio/portfolio assignments/assignment 1.1/CE.LIQ.FLOW.062_Tidydata.xlsx")
-typeof(dataset_Elegans$RawData)
-typeof(dataset_Elegans$compName)
-typeof(dataset_Elegans$compConcentration)
+To keep my data manageable I use the Guerilla Analytics framework. Using this method, every project/part of my lessons are in different folders. There is also a README included to give extra information about the way it's set up. For this assignment, we had to make our DAURII workspace tidy using this framework. You can see that is done here below:
+
+```{r tree, eval=FALSE}
+dir_tree("C:/Users/Youri/OneDrive/Bureaublad/daur2")
 ```
 
-The variables RawData (the outcome - number of offspring counted as an integer value, after incubation time), compName (the generic name of the compound/chemical) and the compConcentration (the concentration of the compound) are all very important in this research.Judging from the experimental description above, I would expect the datatype of the RawData to be integer,compConcentration should be double and the datatype of compName should be character.Judging by the fact that none of these have the correct datatype except compName, I can safely assume the data has not been correctly imported into R.
-
-```{r opdracht1 graph}
-class(dataset_Elegans$RawData) = "integer"
-class(dataset_Elegans$compConcentration) = "double"
-class(dataset_Elegans$compName) = "character"
-
-ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
-  geom_point(aes(color = compName,
-                 shape = expType),
-             size = 3,alpha = 0.8) +
-  labs(title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds",
-       x = "Concentration of the compound",
-       y = "Number of offsprings counted")
+```{r screenshot, fig.cap="Screenshot of my directory tree"}
+knitr::include_graphics(here("data/directory_tree.png"))
 ```
-
-Because of the concentration levels being so incredibly low, everything is super close together. 
-
-```{r opdracht1 graph2}
-dataset_Elegans$compConcentration <- jitter(dataset_Elegans$compConcentration, 2)
-
-ggplot(data = dataset_Elegans, aes(x = compConcentration, y = RawData)) +
-  geom_point(aes(color = compName,
-                 shape = expType),
-             size = 3,alpha = 0.8) +
-  scale_x_continuous(trans='log10') +
-  labs(title = "Number of offspring of adult Elegans were exposed to varying concentrations of different compounds",
-       x = "Concentration of the compound",
-       y = "Number of offsprings counted")
-
-```
-
-The positive control for this experiments is 2,6-diisopropylnaphthalene. The negative control for this experiment is Ethanol. 
-
-To learn whether there is indeed an effect of different concentrations on offspring count I would apply a t-test for each concentration to see wether there is a significant statistically difference.
-
-The result has to be normalised in order to filter the natural expression. S-medium is the negative control, so this will be used as a blanc.
