@@ -5,9 +5,56 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-Link to the article is provided: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9556196/
+```{r reproducibleresearchlibraries, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
 
-This article doesn't score well on the criteria.The study purpose is obvious, it's to see if COS has effects on heart failure. In terms of every single data-related issue, the study doesn't score well. The data is unavailable to the reader unless they contact the owners of the data itself. Study review, author review and ethics statement were all included however. The code availability left much to be desired. 
+For the first part of the assignment I will have to check the reproduction of an article, based on the 'Repita' criteria. This criteria are used to check for the reproducibility of scientific research articles. In the table below the different criteria are shown with a definition and the type of response it calls for.
+
+```{r criteria table}
+criteria_table <- data.frame(TransparencyCriteria = c("Study Purpose", "Data Availability Statement", "Data Location", "Study Location", "Author Review", "Ethics Statement", "Funding Statement", "Code Availability"),
+           Definition = c("A concise statement in the introduction of the article, often in the last paragraph, that establishes the reason the research was conducted. Also called the studyobjective.", "A statement, in an individual section offset from the main body of text, that explains how or if one can access a study’s data. The title of the section may vary, but it must explicitly mention data; it is therefore distinct from a supplementary materials section.", "Where the article’s data can be accessed, either raw or processed.", "Author has stated in the methods section where the study took place or the data’s country/region of origin.", "The professionalism of the contact information that the author has provided in the manuscript.", "A statement within the manuscript indicating any ethical concerns, including the presence of sensitive data.", "A statement within the manuscript indicating whether or not the authors received funding for their research.", "Authors have shared access to the most updated code that they used in their study, including code used for analysis."),
+           ResponseType = c("Binary", "Binary", "Found Value", "Binary; Found Value", "Found Value", "Binary", "Binary", "Binary"))
+
+knitr::kable(criteria_table, caption = "Table with the criteria for reproducibility.")
+
+```
+
+Link to the article is provided: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0181122
+The research article I will be scoring for reproducibility is (link neerzetten) “Effects of taurine on resting-state fMRI activity in spontaneously hypertensive rats”. The study objective is, if it wasn't obvious from the title, to investigate the effects of taurine on resting-state fMRI activity in ADHD. fMRI measurement is a big factor in the pathogenesis of ADHD. The more fMRI, the more likely reduction in volume or function in specific brain areas will occur, resulting in various behavioral problems.Taurine, which is known to be the richest amino acid in the central nervous system, performs various functions in the body. One of these functions as being a neurotransmitter. Multiple findings (linked in the article itself) strongly associate taurine with various ADHD-related neurotransmitters.The goal of this article is to find out if there's a connection between the two.
+
+Using the table previously mentioned, we can go ahead and rank our own article's reproducibility:
+
+```{r ranking article 1}
+criteria_adhd <- criteria_table %>% mutate(Rating = c("Present", "Present", "Present, the data can be found [here](https://figshare.com/articles/dataset/SHR/5091727)", "The workplace of the authors has been given (Taiwan), but the location where the research has been performed remains unnamed.", "Only 2 of the authors' email adresses have been given, the others are not able to be contacted", "Not present", "Present", "Not present"))
+
+knitr::kable(criteria_adhd, caption = "Table showing how the article scored on reproducibility.")
+```
+
+Overall, I give this article a 8.5/10 on reproducibility. It's clear what the writers of this article want to put forward, even if no code is provided. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
