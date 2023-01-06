@@ -16,7 +16,7 @@ library(lme4)
 library(broom.mixed)
 ```
 
-For the first part of the assignment I will have to check the reproduction of an article, based on the 'Repita' criteria (@sumnerReproducibilityReportingPractices2020). These criteria are used to check for the reproducibility of scientific research articles. In the table below the different criteria are shown with a definition and the type of response it calls for.
+For the first part of the assignment I will have to check the reproduction of an article, based on the 'Repita' criteria [@sumnerReproducibilityReportingPractices2020]. These criteria are used to check for the reproducibility of scientific research articles. In the table below the different criteria are shown with a definition and the type of response it calls for.
 
 ```{r criteria table}
 criteria_table <- data.frame(TransparencyCriteria = c("Study Purpose", "Data Availability Statement", "Data Location", "Study Location", "Author Review", "Ethics Statement", "Funding Statement", "Code Availability"),
@@ -27,8 +27,7 @@ knitr::kable(criteria_table, caption = "Table with the criteria for reproducibil
 
 ```
 
-Link to the article is provided: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0181122
-The research article I will be scoring for reproducibility is (link neerzetten) “Effects of taurine on resting-state fMRI activity in spontaneously hypertensive rats”. The study objective is, if it wasn't obvious from the title, to investigate the effects of taurine on resting-state fMRI activity in ADHD. fMRI measurement is a big factor in the pathogenesis of ADHD. The more fMRI, the more likely reduction in volume or function in specific brain areas will occur, resulting in various behavioral problems.Taurine, which is known to be the richest amino acid in the central nervous system, performs various functions in the body. One of these functions as being a neurotransmitter. Multiple findings (linked in the article itself) strongly associate taurine with various ADHD-related neurotransmitters.The goal of this article is to find out if there's a connection between the two.
+The research article I will be scoring for reproducibility is “Effects of taurine on resting-state fMRI activity in spontaneously hypertensive rats” [@chenEffectsTaurineRestingstate2017]. The study objective is, if it wasn't obvious from the title, to investigate the effects of taurine on resting-state fMRI activity in ADHD. fMRI measurement is a big factor in the pathogenesis of ADHD. The more fMRI, the more likely reduction in volume or function in specific brain areas will occur, resulting in various behavioral problems.Taurine, which is known to be the richest amino acid in the central nervous system, performs various functions in the body. One of these functions as being a neurotransmitter. Multiple findings (linked in the article itself) strongly associate taurine with various ADHD-related neurotransmitters.The goal of this article is to find out if there's a connection between the two.
 
 Using the table previously mentioned, we can go ahead and rank our own article's reproducibility:
 
@@ -44,8 +43,7 @@ Overall, I give this article a 8.5/10 on reproducibility. It's clear what the wr
 
 For the second part of the assignment I will have to use the code provided with an article. I will have to try and understand the code, explain what it does and even try to make at least one figure.
 
-Link to the article: https://osf.io/wqc25/
-The code is easily available and very easily readable. There are a lot of codes included. Using the processed data, it is very easy to recreate on of the figures from this study. I would rate the readabilty of this code a 5/5. 
+This article [@bueckerChangesDailyLoneliness2020] describes changes in daily loneliness for German residents during the first four weeks of the COVID-19 pandemic. The code is easily available and very easily readable. There are a lot of codes included. Using the processed data, it is very easy to recreate on of the figures from this study. I would rate the readabilty of this code a 5/5. 
 
 ```{r trying the code}
 # gg_color_hue ------------------------------------------------------------
@@ -166,3 +164,9 @@ legend(x = ((b[1,] + b[2,])/2)[15], y = 2000, legend = c("Sample 1", "Sample 2")
 
 
 I didn't have any trouble reading the code, or understanding what needed to happen. The only error I got was in the read.csv function (lines 70 & 74). To fix this. I redirected the function with the 'here' command. That way, it was able to find the files in the raw_data folder.
+
+```{r bibiography}
+library(rbbt)
+
+bbt_update_bib("portfolio_assignment_1.2.rmd")
+```

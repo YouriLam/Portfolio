@@ -1,0 +1,94 @@
+---
+title: "Relational databases"
+author: "Omar Sprockel"
+date: "21-12-2022"
+output: html_document
+---
+
+# Relational Databases
+
+```{r reading files}
+flu_data <- read.csv("raw_data/flu_data.csv", skip = 11)
+dengue_data <- read.csv("raw_data/dengue_data.csv", skip = 11)
+gapminder_data <- read.csv("raw_data/gapminder.csv")
+```
+
+```{r making tidy}
+library(tidyverse)
+flu_data_tidy <- pivot_longer(data = flu_data, cols = c(2:30), names_to = "Country", values_to = "Value")
+flu_data_tidy <- flu_data_tidy %>% mutate(Date = str_sub(Date, 1, 4))
+flu_data_tidy <- flu_data_tidy %>% rename("Year" = "Date")
+
+dengue_data_tidy <- pivot_longer(data = dengue_data, cols = c(2:11), names_to = "Country", values_to = "Value")
+dengue_data_tidy <- dengue_data_tidy %>% mutate(Date = str_sub(Date, 1, 4))
+dengue_data_tidy <- dengue_data_tidy %>% rename("Year" = "Date")
+
+gapminder_data <- as_tibble(gapminder_data)
+gapminder_data$year <- as.character(gapminder_data$year)
+gapminder_data <- gapminder_data %>% rename("Year" = "year")
+gapminder_data <- gapminder_data %>% rename("Country" = "country")
+```
+
+```{r Storing the files, eval = FALSE}
+write.csv(flu_data_tidy, "flu_data_tidy.csv")
+write.csv(dengue_data_tidy, "dengue_data_tidy.csv")
+write.csv(gapminder_data, "gapminder_data_tidy.csv")
+saveRDS(flu_data_tidy, "flu_data_tidy.rds")
+saveRDS(dengue_data_tidy, "dengue_data_tidy.rds")
+saveRDS(gapminder_data, "gapminder_data_tidy.rds")
+```
+
+```{r Connecting to dBeaver, eval = FALSE}
+con <- dbConnect(RPostgres::Postgres(), 
+                 dbname = "workflowsdb", 
+                 host="localhost", 
+                 port="5432", 
+                 user="postgres", 
+                 password=".")
+```
+
+```{r inserting databases into dBeaver, eval = FALSE}
+flu_data_tidy <- as.data.frame(flu_data_tidy)
+dengue_data_tidy <- as.data.frame(dengue_data_tidy)
+gapminder_data <- as.data.frame(gapminder_data)
+
+dbWriteTable(con, "flu_db", flu_data_tidy)
+dbWriteTable(con, "dengue_db", dengue_data_tidy)
+dbWriteTable(con, "gapminder_db", gapminder_data)
+```
+
+```{r analysing data using SQL, eval = FALSE}
+select * from dengue_db dd
+select * from flu_db fd
+select * from gapminder_db gd
+```
+
+```{r Filter correlating year}
+gapminder_join <- gapminder_data %>% filter(between(Year, 2002, 2015))
+```
+
+```{r Uploading table, eval = FALSE}
+dbWriteTable(con, "gapminder_join", gapminder_join)
+```
+
+```{r Combining tables}
+flu_dengue_combined <- left_join(flu_data_tidy, dengue_data_tidy, by = c("Country", "Year"))
+flu_dengue_gapminder_combined <- left_join(flu_dengue_combined, gapminder_join, by = c("Country", "Year"))
+flu_dengue_gapminder_combined <- flu_dengue_gapminder_combined %>% rename("Flu" = "Value.x")
+flu_dengue_gapminder_combined <- flu_dengue_gapminder_combined %>% rename("Dengue" = "Value.y")
+```
+
+```{r statistics and plots}
+library(ggplot2)
+life_expectancy_Europe <- flu_dengue_gapminder_combined %>% filter(continent == "Europe") %>% select(life_expectancy, Year)
+life_expectancy_Europe
+
+flu_europe <- flu_dengue_gapminder_combined %>% filter(continent == "Europe") %>% select(Flu, Year)
+ggplot(data = flu_europe) + geom_col(aes(x = Year, y = Flu, fill = Year), show.legend = FALSE) + labs(title = "Development of the flu over the years in Europe")
+
+infant_mortality_Netherlands <- flu_dengue_gapminder_combined %>% filter(Country == "Netherlands") %>% select(infant_mortality, Year)
+ggplot(data = infant_mortality_Netherlands) + geom_col(aes(x = Year, y = infant_mortality, fill = Year), show.legend = FALSE) + labs(title = "Amount of infant mortality in the netherlands for each year")
+
+dengue_argentina <- flu_dengue_gapminder_combined %>% filter(Country == "Argentina") %>% select(Dengue, Year)
+ggplot(data = dengue_argentina) + geom_col(aes(x = Year, y = Dengue, fill = Year), show.legend = FALSE) + labs(title = "Development of dengue in Argentina each year")
+```

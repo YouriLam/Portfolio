@@ -3,6 +3,7 @@ title: "portfolio_assignment_1.1"
 author: "Youri Lam"
 date: "`r Sys.Date()`"
 output: html_document
+bibliography: “'r rbbt::bbt_write_bib(”bibliography.json”, overwrite = TRUE)'”
 ---
 
 ```{r setup, include=FALSE}
