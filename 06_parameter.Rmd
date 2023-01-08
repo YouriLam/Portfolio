@@ -96,4 +96,51 @@ plot_deaths
 
 ## Altering parameters 
 
-To conclude, parameters make life much easier when visualising big amounts of data like this. To demonstrate I now fully understand how parameters work, I will be altering them below:
+To conclude, parameters make life much easier when visualising big amounts of data like this. To demonstrate I now fully understand how parameters work, I will be altering them below to show 3 other countries in a diffrent time period:
+
+```{r, eval=FALSE}
+#generate the plots with different parameters
+rmarkdown::render("06_parameterizedcovid.Rmd", params = list(country = c("Malta", "Cyprus", "Liechtenstein"),
+                                                        year = 2022,
+                                                        month = 1:12))
+```
+
+```{r filterdata2, eval=FALSE}
+data_filtered2 <- data %>% filter(countriesAndTerritories %in% params$country,
+                                 year %in% params$year,
+                                 month %in% params$month) #filter for the given parameters
+```
+
+```{r filtertest2, echo=FALSE}
+### This is purely here for execution in the Rmarkdown
+data_filtered2 <- data %>% filter(countriesAndTerritories %in% c("Malta", "Cyprus", "Liechtenstein"), year %in% 2022, month %in% 1:12)
+data_filtered2 <- mutate(data_filtered2, "date" = paste(day, month, year, sep="/"))
+data_filtered2$date <- as.Date(data_filtered2$date, format="%d/%m/%Y")
+```
+
+Finally, the data can be plotted:
+
+```{r plotcases2, fig.cap="Number of reported COVID-19 cases over time by country, with on the y-axis the number of COVID-19 cases and on the x-axis the month."}
+plot_cases2 <- ggplot(data_filtered2,
+                     aes(x = date, y = cases, group = countriesAndTerritories,
+                         color = countriesAndTerritories))+
+              geom_line()+
+              geom_point(size = 1)+
+              labs(title = "Number of newly reported COVID-19 cases over time by country",
+                   y = "Number of COVID-19 cases",
+                   x = "Date",
+                   color = "Country")
+plot_cases2
+```
+
+```{r plotdeaths2, fig.cap="Number of reported COVID-19 deaths over time by country, with on the y-axis the number of COVID-19 deaths and on the x-axis the date."}
+plot_deaths2 <- ggplot(data_filtered2,
+                     aes(x = date, y = deaths, group = countriesAndTerritories,
+                         color = countriesAndTerritories))+geom_line()+
+                geom_point(size = 1)+
+                labs(title = "Number of newly reported COVID-19 deaths over time by country",
+                     y = "Number of COVID-19 deaths",
+                     x = "Date",
+                     color = "Country")
+plot_deaths2
+```
