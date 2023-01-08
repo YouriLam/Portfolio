@@ -3,11 +3,53 @@
 For this assignment, I had the freedom to let my fantasy run wild and try and do an assignment with the eye on my future.This assignment was going to take around 40 hours. 
 
 ## The plan
-If I'm being honest, I'm not sure where I see myself in 2 years. I know my interests lie in the biomedical research branche, but I'm not sure wether that's as an analist or a lab assistent. If you had asked me this a couple of months ago, I would have always chosen to be a lab assistent. But after doing this Data Science study, it has left me conflicted with myself. I think I still want to be a lab assistent at the end of the day, but I also would like to dive more into the data science.
+If I'm being honest, I'm not sure where I see myself in 2 years. I know my interests lie in the biomedical research branche, but I'm not sure whether that's as an analist or a lab assistent. If you had asked me this a couple of months ago, I would have always chosen to be a lab assistent. But after doing this Data Science study, it has left me conflicted with myself. I think I still want to be a lab assistent at the end of the day, but I also would like to dive more into the data science.
 
-For now, I would like to learn more about working with relational data & databases. I work at Eurofins Analytico, which is a huge company. Associated companies all send their organic products to us, for us to analyse. These associated companies are all able to be found in a huge database. The organic substances, such as soil samples, are delivered and prepared for us in another floor. To see what's coming in, we have to go through three different databases to find out what needs to be done, who the sample is coming from and when it's due. With colleagues who are less able to use a computer, reading 3 databases is sometimes too much. My idea was therefore to write a code that would ensure that these 3 databases would be merged into 1 database.
+For now, I would like to learn more about working with relational data & databases, especially using SQL. I work at Eurofins Analytico, which is a huge company. Associated companies all send their organic products to us, for us to analyse. These associated companies are all able to be found in a huge database. The organic substances, such as soil samples, are delivered and prepared for us in another floor. To see what's coming in, we have to go through three different databases to find out what needs to be done, who the sample is coming from and when it's due. With colleagues who are less able to use a computer, reading 3 databases is sometimes too much. My idea was therefore to write a code that would ensure that these 3 databases would be merged into 1 database.
 
 ## Issues
 
-Unfortunately, my boss wasn't too happy with my idea. Because the databases contains a lot of private information, I wasn't allowed to tinker with them. Even if I would blur the names of the companies, it would still give a lot of information available about the way our company is run. This meant that a lot of time went into finding a solution. I decided it was still possible, just using a very different dataframe. I will try and explain it like it's still related to my work. 
+Unfortunately, my boss wasn't too happy with my idea. Because the databases contains a lot of private information, I wasn't allowed to tinker with them. Even if I would blur the names of the companies, it would still give a lot of information available about the way our company is run. This means that my entire plan could be thrown away. I made the assignment, I showed my boss the week before the christmas period, and he told me I couldn't publish it. Nevertheless, I'm still gonna try and show the plan I had for this assignment.
+
+## Solution
+
+The following picture portaits my idea to make one big database. Not everything is exact, but I tried making it as good as possible.  
+
+<img src="data/databases.jpg"
+     width="750" 
+     height="350" />
+
+The first database we'll call 'clients'. In this database, all of the information on our clients is available. This was the main reason why I can't show the exact results. This database is used to look up specific clients and see where they come from. Some substances have to be differently handled than others, for instance Belgian monsters. These have a different approach to the method than Dutch substances. From this database, I want to make sure I know which client has requested the analysis for these substances. So we'll have to grab the column 'full_name', more on that later.
+
+The second database is the 'Organic substances' database. In this, the substances that are being brought are shown with the specific type of analysis they would like it to be tested on. The problem is, that the substances only get shown with a specific sequence of numbers, like 1000345. This means that it's not possible to see which client sent the monster without a physical copy of their name with the monster. Another thing shown in this database is the rush code. The rush code is a color, which indicates how big of a priority it has. Yellow and green mean high priority, while red and blue mean less priority. The higher the priority, the quicker it has to be analysed. This is also seen in the column called date_Wanted and before_time. These show the dates the monsters have to be analyzed on, and before what time that has to happen.
+
+The third and final database consists of the 'preparation' part of our company. These people let us know through a database whether or not the substances have arrived and if they're ready to be analysed. In other words, this database let's us know when a substance is ready to be analyzed, but not which one or how much priority it has. 
+
+The simple solution to all of this is to combine the databases into one big database. Again, I can't show the results of the combined database, but I can show the code used to make this happen. 
+
+```{sql joining clients and organic substances, connection = con, eval=FALSE}
+CREATE TABLE clients_organic_substances AS
+SELECT
+    clients.full_name,
+    organic_substances.type_of_substance,
+    organic_substances.rush_code,
+    organic_substances.date_wanted,
+    organic_substances.before_time;
+```
+
+```{sql joining clients_organic_substances and preperation, connection = con, eval=FALSE}
+CREATE TABLE clients_organic_substances_preperation AS 
+SELECT
+    clients_organic_substances.full_name,
+    clients_organic_substances.type_of_substance,
+    clients_organic_substances.rush_code,
+    clients_organic_substances.date_wanted,
+    clients_organic_substances.before_time,
+    preparation.rush_code,
+    preparation.time_received
+  FROM preparation
+LEFT JOIN clients_organic_substances
+  ON preparation.rush_code = clients_organic_substances.rush_code;
+```
+
 
