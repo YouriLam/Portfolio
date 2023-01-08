@@ -1,4 +1,7 @@
 # Portfolio
-This repository is used for my portfolio. This portfolio is made for for our study Data Science for Biology 2. In this portfolio, I will be making exercises that require basic knowledge of Rstudio and Git.  
+portfolio Youri Lam
+Data Sciences for Biology 2 portfolio
 
-Within every folder, the correct Rmarkdown is provided for every assignment. If there are data files needed to run the code, the files will be included in the same folder. 
+Related repositories:
+https://github.com/YouriLam/YouriLam.github.io: My github-pages repository
+https://github.com/YouriLam/portfouri : My package repository
