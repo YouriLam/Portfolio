@@ -1,0 +1,16 @@
+# Free assignment
+
+For this assignment, I had the freedom to let my fantasy run wild and try and do an assignment with the eye on my future.This assignment was going to take around 40 hours. 
+
+## The plan
+If I'm being honest, I'm not sure where I see myself in 2 years. I know my interests lie in the biomedical research branche, but I'm not sure wether that's as an analist or a lab assistent. If you had asked me this a couple of months ago, I would have always chosen to be a lab assistent. But after doing this Data Science study, it has left me conflicted with myself. I think I still want to be a lab assistent at the end of the day, but I also would like to dive more into the data science.
+
+For now, I would like to learn more about working with relational data & databases. I work at Eurofins Analytico, which is a huge company. Associated companies all send their organic products to us, for us to analyse. These associated companies are all able to be found in a huge database. The organic substances, such as soil samples, are delivered and prepared for us in another floor. To see what's coming in, we have to go through three different databases to find out what needs to be done, who the sample is coming from and when it's due. With colleagues who are less able to use a computer, reading 3 databases is sometimes too much. My idea was therefore to write a code that would ensure that these 3 databases would be merged into 1 database.
+
+## Issues
+
+Unfortunately, 
+
+## The phylogenetic tree {-}
+
+In one of my resources I found a useful function from the {compbio4all} package, but Nathan L Brouwer, the writer of the package, states that if there is any trouble downloading the package the (following) code for the function can be copied. The package in question can be found at [the github repository](https://github.com/brouwern/compbio4all.git). I did have trouble installing the package, so the code retrieved from github is below.
