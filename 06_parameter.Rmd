@@ -1,0 +1,99 @@
+# Parameterized report on COVID-19
+
+----
+
+```{r setupcovid, include=FALSE}
+library(tidyverse)
+library(plotly)
+library(scales)
+library(here)
+```
+
+## Parameterized reports
+
+When using a dataset with a huge ariety of countries for instance, parameters are used to make navigating this dataset easier. Using parameters, it is easier to choose exactly what you want to visualise.In this report I will be visualizing COVID-19 data obtained from ECDC about [daily numbers of newly reported COVID-19 cases and deaths in EU countries.](https://www.ecdc.europa.eu/en/publications-data/data-daily-new-cases-covid-19-eueea-country)).
+
+## The parameterized COVID-19 report
+
+### The parameters
+
+The parameters I will be using are country, year and month. Using these parameters, I will generate a interactive plot for the newly reported number of cases and one for the newly reported number of deaths.I will be focusing on the Netherlands, as well as 2 neighbouring countries in the year 2021, october to december. The reason for this is that I was infected with COVID during this period, and was curious to see how many others had the unfortunate same fate.
+
+### Rendering the report
+
+The parameters are chosen when rendering the report, and are set as seen below. 
+
+```{r parameters, eval=FALSE}
+#generate the report with chosen parameters
+rmarkdown::render("06_parameter.Rmd", params = list(country = c("Netherlands", "Belgium", "Germany"),
+                                                        year = 2021,
+                                                        month = 10:12))
+```
+
+For the parameterization to work, the YAML header of the markdown file needs to contain some defaults for the parameters that are used when the parameter is not specified when rendering.
+
+```{r headerdefault, eval=FALSE}
+---
+params:
+  country: "Netherlands"
+  year: 2022
+  month: 10
+---
+```
+
+```{r librariesdefault, eval=FALSE}
+library(tidyverse)
+library(plotly)
+library(scales)
+library(here)
+```
+
+```{r loaddata}
+data <- read.csv(here("raw_data/data.csv")) #load the data
+```
+
+After the data is loaded, it can be filtered to use the given parameters.
+
+```{r filterdata, eval=FALSE}
+data_filtered <- data %>% filter(countriesAndTerritories %in% params$country,
+                                 year %in% params$year,
+                                 month %in% params$month) #filter for the given parameters
+```
+
+```{r filtertest, echo=FALSE}
+### This is purely here for execution in the Rmarkdown
+data_filtered <- data %>% filter(countriesAndTerritories %in% c("Netherlands", "Belgium", "Germany"), year %in% 2021, month %in% 10:12)
+data_filtered <- mutate(data_filtered, "date" = paste(day, month, year, sep="/"))
+data_filtered$date <- as.Date(data_filtered$date, format="%d/%m/%Y")
+```
+
+Finally, the data can be plotted:
+
+```{r plotcases, fig.cap="Number of reported COVID-19 cases over time by country, with on the y-axis the number of COVID-19 cases and on the x-axis the month."}
+plot_cases <- ggplot(data_filtered,
+                     aes(x = date, y = cases, group = countriesAndTerritories,
+                         color = countriesAndTerritories))+
+              geom_line()+
+              geom_point(size = 1)+
+              labs(title = "Number of newly reported COVID-19 cases over time by country",
+                   y = "Number of COVID-19 cases",
+                   x = "Date",
+                   color = "Country")
+plot_cases
+```
+
+```{r plotdeaths, fig.cap="Number of reported COVID-19 deaths over time by country, with on the y-axis the number of COVID-19 deaths and on the x-axis the date."}
+plot_deaths <- ggplot(data_filtered,
+                     aes(x = date, y = deaths, group = countriesAndTerritories,
+                         color = countriesAndTerritories))+geom_line()+
+                geom_point(size = 1)+
+                labs(title = "Number of newly reported COVID-19 deaths over time by country",
+                     y = "Number of COVID-19 deaths",
+                     x = "Date",
+                     color = "Country")
+plot_deaths
+```
+
+## Altering parameters 
+
+To conclude, parameters make life much easier when visualising big amounts of data like this. To demonstrate I now fully understand how parameters work, I will be altering them below:
