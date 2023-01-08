@@ -1,0 +1,165 @@
+---
+title: "Relational databases"
+author: "Youri Lam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+# Relational data and databases
+
+## Introduction {-}
+
+This assignment was focused on learning the basics of the SQL language and how to work this around relational data and databases.
+
+----
+
+## DBeaver connection {-}
+
+I started by creating three data frames out of files and making them tidy.
+
+```{r import and tidy}
+## Import, first 11 lines are metadata
+flu_data <- read_csv("raw_data/flu_data.csv", skip = 11)
+dengue_data <- read_csv("raw_data/dengue_data.csv", skip = 11)
+gapminder_data <- read.csv("raw_data/gapminder.csv")
+## Make tidy. Gapminder doesn't need to be made tidy, just renaming some rows for future use.
+flu_tidy <- pivot_longer(data = flu_data, cols = c(2:30), names_to = "Country", values_to = "Value")
+flu_tidy <- flu_tidy %>% mutate(Date = str_sub(Date, 1, 4))
+flu_tidy <- flu_tidy %>% rename("Year" = "Date")
+
+dengue_tidy <- pivot_longer(data = dengue_data, cols = c(2:11), names_to = "Country", values_to = "Value")
+dengue_tidy <- dengue_tidy %>% mutate(Date = str_sub(Date, 1, 4))
+dengue_tidy <- dengue_tidy %>% rename("Year" = "Date")
+
+gapminder_data <- as_tibble(gapminder_data)
+gapminder_data$year <- as.character(gapminder_data$year)
+gapminder_data <- gapminder_data %>% rename("Year" = "year")
+gapminder_data <- gapminder_data %>% rename("Country" = "country")
+```
+
+An important part of relational data is enabling comparison across different data frame. The data frames are now similar and can be stored into csv and rds files.
+
+```{r export}
+# Export data frames as csv and rds
+write.csv(flu_tidy, "flu_tidy.csv")
+write.csv(dengue_tidy, "dengue_tidy.csv")
+write.csv(gapminder_data, "gapminder_tidy.csv")
+saveRDS(flu_tidy, "flu_tidy.rds")
+saveRDS(dengue_tidy, "dengue_tidy.rds")
+saveRDS(gapminder_data, "gapminder_tidy.rds")
+```
+
+DBeaver and R were connected (my real password is hidden) and the tables were inserted into the 'workflowsdb' database in DBeaver for inspection.
+
+```{r connecting DBeaver, eval = FALSE}
+con <- dbConnect(RPostgres::Postgres(), 
+                 dbname = "workflowsdb", 
+                 host="localhost", 
+                 port="5432", 
+                 user="postgres", 
+                 password=".") # Hide my real password
+```
+
+```{r insert in DBeaver, eval = FALSE}
+dbWriteTable(con, "gapminder", gapminder_data)
+dbWriteTable(con, "flu", flu_tidy)
+dbWriteTable(con, "dengue", dengue_tidy)
+```
+
+----
+
+## Inspection {-}
+
+Now that the tables are imported, it is required to check for certain things inside of them. The first thing I checked were the 'NULL' values.
+
+```{sql, connection = con}
+SELECT *
+  FROM gapminder
+WHERE "Year" IS NULL; --make sure no important values are missing
+```
+
+```{sql, connection = con}
+SELECT *
+  FROM gapminder
+WHERE "Country" IS NULL;
+```
+
+```{sql, connection = con}
+SELECT *
+  FROM dengue
+WHERE "Year" IS NULL;
+```
+
+```{sql, connection = con}
+SELECT *
+  FROM dengue
+WHERE "Country" IS NULL;
+```
+
+```{sql, connection = con}
+SELECT *
+  FROM flu
+WHERE "Year" IS NULL;
+```
+
+```{sql, connection = con}
+SELECT *
+  FROM flu
+WHERE "Country" IS NULL;
+```
+ 
+Turns out there were no 'NULL' values in all these tables, which is good. 
+
+Next to checking for 'NULL' values, I also wondered what the total number of cases were and which countries had the highest number of cases. To check this, I used the following scripts.
+
+```{sql, connection = con}
+SELECT SUM("Value") --calculate the total number of cases
+  FROM dengue;
+```
+
+```{sql, connection = con}
+SELECT SUM("Value") --calculate the total number of cases
+  FROM flu;
+```
+
+For a good analysis of the different data they need to be joined together in one table with the important columns. I created a tabel combining all three tables. In my case, I decided to focus on the period between 2002 and 2015. See below for the SQL and R code.
+
+```{r Filter correlating year}
+gapminder_filtered <- gapminder_data %>% filter(between(Year, 2002, 2015))
+```
+
+```{r Uploading table, eval = FALSE}
+dbWriteTable(con, "gapminder_filtered", gapminder_filtered)
+```
+
+```{r Combining tables}
+flu_dengue_combined <- left_join(flu_tidy, dengue_tidy, by = c("Country", "Year"))
+flu_dengue_gapminder_combined <- left_join(flu_dengue_combined, gapminder_filtered, by = c("Country", "Year"))
+flu_dengue_gapminder_combined <- flu_dengue_gapminder_combined %>% rename("Flu" = "Value.x")
+flu_dengue_gapminder_combined <- flu_dengue_gapminder_combined %>% rename("Dengue" = "Value.y")
+```
+----
+
+## Visualisations {-}
+
+Now that the dataset had been combined, it is possible to make visualisations of this. In my [self-made Rpackage](https://yourilam.github.io/08_Rpackage.html) I made a function that will help a bit with visualising. With this dataset, the following graphs can be made:
+
+### Life expectancy {-}
+
+```{r visualisation1 life expectancy}
+write.csv(flu_dengue_gapminder_combined, "raw_data/package.csv", row.names=FALSE)
+life_expectancy_graph("Europe","2002")
+```
+_Figure 1: Bargraph of the life expectancy for every country in Europe in 2002._
+
+```{r visualisation2 life expectancy}
+life_expectancy_graph("Europe","2012")
+```
+_Figure 2: Bargraph of the life expectancy for every country in Europe in 2015._
+
+###One other visualisation
+
+```{r visualisation3 dengue}
+dengue_brazil <- flu_dengue_gapminder_combined %>% filter(Country == "Brazil") %>% select(Dengue, Year)
+ggplot(data = dengue_brazil) + geom_col(aes(x = Year, y = Dengue, fill = Year), show.legend = FALSE) + labs(title = "Development of dengue in Brazil each year")
+```
+_Figure 3: Bargraph of the amount of dengue cases in Brazil every year_

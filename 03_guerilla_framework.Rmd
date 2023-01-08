@@ -1,16 +1,4 @@
----
-title: "portfolio_assignment_2"
-author: "Youri Lam"
-date: "`r Sys.Date()`"
-output: html_document
----
-
-```{r setup, include=FALSE}
-library(here) 
-library(fs) 
-```
-
-----
+# Data Management
 
 To keep my data manageable I use the Guerilla Analytics framework. Using this method, every project/part of my lessons are in different folders. There is also a README included to give extra information about the way it's set up. For this assignment, we had to make our DAURII workspace tidy using this framework. You can see that is done here below:
 
@@ -19,5 +7,5 @@ dir_tree("C:/Users/Youri/OneDrive/Bureaublad/daur2")
 ```
 
 ```{r screenshot, fig.cap="Screenshot of my directory tree"}
-knitr::include_graphics(here("data/directory_tree.png"))
+knitr::include_graphics(here("images/directory_tree.png"))
 ```

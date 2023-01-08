@@ -1,25 +1,8 @@
----
-title: "portfolio_assignment_1.1"
-author: "Youri Lam"
-date: "`r Sys.Date()`"
-output: html_document
-bibliography: “'r rbbt::bbt_write_bib(”bibliography.json”, overwrite = TRUE)'”
----
+# Analyzing and visualizing data
 
-```{r setup, include=FALSE}
-library(readxl)
-library(tidyverse)
-library(toolboxr)
-library(ggplot2)
-library(patchwork)
-library(cowplot)
-library(devtools)
-library(here)
-devtools::install_github("uashogeschoolutrecht/toolboxr")
-```
-```
+## Preparing the data
 
-Assignment 1.1
+Before the data can be visualized, it has to be cleaned up. The dataframe is already in tidy format, but the data types of the columns need to be changed. The variables RawData (the outcome - number of offspring counted as an integer value, after incubation time), compName (the generic name of the compound/chemical) and the compConcentration (the concentration of the compound) are all very important in this research. Expected data types would be double/integer for RawData, character for compName and double for compConcentration. 
 
 ``` {r importing and checking data types}
 dataset_elegans <- read_excel(here("raw_data/CE.LIQ.FLOW.062_Tidydata.xlsx"))
@@ -28,7 +11,7 @@ typeof(dataset_elegans$compName)
 typeof(dataset_elegans$compConcentration)
 ```
 
-Before the data can be visualized, it has to be cleaned up. The dataframe is already in tidy format, but the data types of the columns need to be changed. The variables RawData (the outcome - number of offspring counted as an integer value, after incubation time), compName (the generic name of the compound/chemical) and the compConcentration (the concentration of the compound) are all very important in this research. Expected data types would be double/integer for RawData, character for compName and double for compConcentration. The actual data types of the columns are double for RawData, character for compName and character for compConcentration, as seen above. When plotted, this will result in the following issue: 
+The actual data types of the columns are double for RawData, character for compName and character for compConcentration, as seen above. When plotted, this will result in the following issue: 
 
 ```{r errorplot, warning=FALSE, fig.cap="Number of C. elegans offspring under a number of circumstances where the x-axis is ordered alphabetically"}
 
@@ -47,9 +30,7 @@ plot_wrong <- ggplot(data = dataset_elegans, aes(x = compConcentration, y = RawD
 plot_wrong
 ```
 
-As seen in the figure above, the x-axis labels are ordered alphabetically. This is because the data type of the compConcentration is character instead of double. 
-
-Looking at the compUnit part of the data, I noticed that not all of the data shares the same compUnit. Some of them are compounds measured in nM and some compounds are measured in percentage. To show this, I made sure to divide the data into two graphs, one for each unit. By changing the date types to the correct ones (including the types talked about previously) and adding jitter, we can make the graph look like this:
+As seen in the figure above, the x-axis labels are ordered alphabetically. This is because the data type of the compConcentration is character instead of double. TO make sure the graph looks better in the future, the classes need to be changed as follows:
 
 ```{r changing datatype}
 dataset_elegans$RawData <- as.integer(dataset_elegans$RawData)
@@ -60,6 +41,10 @@ class(dataset_elegans$RawData)
 class(dataset_elegans$compName)
 class(dataset_elegans$compConcentration)
 ```
+
+Looking at the compUnit part of the data, I noticed that not all of the data shares the same compUnit. Some of them are compounds measured in nM and some compounds are measured in percentage. To show this, I made sure to divide the data into two graphs, one for each unit. By changing the date types to the correct ones (including the types talked about previously) and adding jitter, we can make the graph look like this:
+
+
 
 ```{r scatterplotelegans,warning=FALSE, fig.cap="Number of C. elegans offspring under a number of circumstances"}
 #Scatter plot filtered on nM as unit
@@ -98,6 +83,8 @@ plot_grid(plot_grid(scatter_nM, scatter_pct),
 
 The positive control for this experiment is ethanol. The negative control for this experiment is S-medium.
 
+## Normalizing the data
+
 To make it easier to read the grap, the data needs to be normalized. To do this we adjust the negative control to a value of 1 and adjust the other values in the same way:
 
 ```{r normalization}
@@ -108,6 +95,8 @@ mutated <- dataset_elegans %>% filter(RawData > 0) %>%
   select(RawData, compName, compConcentration, expType) %>% na.omit() %>% 
   mutate(normalized = RawData/neg_control$mean)
 ```
+
+Now that the data is normalized, we can make the graph:
 
 ```{r normalizedplot, fig.cap="Number of C. elegans offspring as a fraction of the negative control group."}
 #create normalized plot
