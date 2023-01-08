@@ -9,8 +9,5 @@ For now, I would like to learn more about working with relational data & databas
 
 ## Issues
 
-Unfortunately, 
+Unfortunately, my boss wasn't too happy with my idea. Because the databases contains a lot of private information, I wasn't allowed to tinker with them. Even if I would blur the names of the companies, it would still give a lot of information available about the way our company is run. This meant that a lot of time went into finding a solution. I decided it was still possible, just using a very different dataframe. I will try and explain it like it's still related to my work. 
 
-## The phylogenetic tree {-}
-
-In one of my resources I found a useful function from the {compbio4all} package, but Nathan L Brouwer, the writer of the package, states that if there is any trouble downloading the package the (following) code for the function can be copied. The package in question can be found at [the github repository](https://github.com/brouwern/compbio4all.git). I did have trouble installing the package, so the code retrieved from github is below.
